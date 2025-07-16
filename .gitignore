@@ -2,7 +2,10 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
 
 .vscode
+.DS_Store
 .idea
+.envs/*
+!.envs/.env.example
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
