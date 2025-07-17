@@ -1,3 +1,4 @@
+# Shell script runs this file
 from fastapi import FastAPI
 
 from api.main import api_router
