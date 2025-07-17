@@ -1,0 +1,20 @@
+services:
+  postgresdb:
+    build:
+      context: .
+      dockerfile: ./backend/docker/local/postgres/Dockerfile
+    ports:
+      - "5432:5432"
+    volumes:
+      - fastapi_bank_local_db:/var/lib/postgresql/data
+    env_file:
+      - ./.envs/.env.local
+    networks:
+      - fastapi_bank_local_network
+
+networks:
+  fastapi_bank_local_network:
+    external: true
+
+volumes:
+  fastapi_bank_local_db:
