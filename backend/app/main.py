@@ -1,10 +1,11 @@
 # Shell script runs this file
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
-from api.main import api_router
-from core.config import settings
-from contextlib import asynccontextmanager
-from core.db import init_db
+from backend.app.api.main import api_router
+from backend.app.core.config import settings
+from backend.app.core.db import init_db
 
 
 @asynccontextmanager

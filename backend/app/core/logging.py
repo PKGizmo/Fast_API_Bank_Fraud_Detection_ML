@@ -1,6 +1,7 @@
 import os
+
+from backend.app.core.config import settings
 from loguru import logger
-from core.config import settings
 
 logger.remove()
 
