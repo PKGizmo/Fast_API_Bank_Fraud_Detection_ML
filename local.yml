@@ -22,11 +22,14 @@ services:
       - ./backend/app/logs:/src/backend/app/logs
     ports:
       - "8000:8000"
+    
     env_file:
       - ./.envs/.env.local
     depends_on:
       - postgresdb
       - mailpit
+      - redis
+      - rabbitmq
     command: /start.sh
     networks:
       - fastapi_bank_local_network
@@ -35,7 +38,7 @@ services:
       - "traefik.http.routers.api.entrypoints=web"
       - "traefik.http.routers.api.rule=Host(`api.localhost`)"
       - "traefik.http.routers.api.service=api-service"
-      - "traefik.http.services.api-service.loadbalance.server.port=8000"
+      - "traefik.http.services.api-service.loadbalancer.server.port=8000"
 
   mailpit:
     image: docker.io/axllent/mailpit:v1.20.3
@@ -43,7 +46,7 @@ services:
       - "8025:8025"
       - "1025:1025"
     volumes:
-      - nextgen_mailpit_data:/data
+      - fastapi_mailpit_data:/data
     environment:
       MP_MAX_MESSAGES: 5000
       MP_DATA_FILE: /data/mailpit.db
@@ -51,7 +54,6 @@ services:
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
     networks:
       - fastapi_bank_local_network
-
 
   postgresdb:
     build:
@@ -66,10 +68,62 @@ services:
     networks:
       - fastapi_bank_local_network
 
+  redis:
+    image: docker.io/redis:7.0-alpine
+    command: redis-server --appendonly yes
+    networks:
+      - fastapi_bank_local_network
+  
+  rabbitmq:
+    image: docker.io/rabbitmq:3.13-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - fastapi_rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - fastapi_bank_local_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rabbitmq.entrypoints=web"
+      - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.localhost`)"
+      - "traefik.http.routers.rabbitmq.service=rabbitmq-service"
+      - "traefik.http.services.rabbitmq-service.loadbalancer.server.port=15672"
+
+  celeryworker:
+    <<: *api
+    ports: []
+    command: /start-celeryworker.sh
+
+  flower:
+    <<: *api
+    ports: 
+      - "5555:5555"
+    volumes:
+      - fastapi_bank_flower_data:/data
+    command: /start-flower.sh
+    depends_on:
+      - redis
+      - rabbitmq
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.flower.entrypoints=web"
+      - "traefik.http.routers.flower.rule=Host(`flower.localhost`)"
+      - "traefik.http.routers.flower.service=flower-service"
+      - "traefik.http.services.flower-service.loadbalancer.server.port=5555"
+
+  celerybeat:
+    <<: *api
+    ports: []
+    command: /start-celerybeat.sh
+
 networks:
   fastapi_bank_local_network:
     external: true
 
 volumes:
   fastapi_bank_local_db:
-  nextgen_mailpit_data:
+  fastapi_mailpit_data:
+  fastapi_rabbitmq_data:
+  fastapi_bank_flower_data:
+

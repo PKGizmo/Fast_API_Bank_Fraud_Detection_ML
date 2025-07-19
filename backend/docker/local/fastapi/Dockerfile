@@ -31,7 +31,7 @@ WORKDIR ${APP_HOME}
 RUN apt-get update && apt-get install --no-install-recommends -y \
     sudo git bash-completion nano ssh \
     gettext \
-    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportants=false \
+    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -r ${APP_GROUP} && \
@@ -50,11 +50,14 @@ RUN pip install --no-cache-dir --no-index --find-links=/wheels/ /wheels/* \
 
 COPY --chown=${APP_USER}:{APP_GROUP} ./backend/docker/local/fastapi/entrypoint.sh /entrypoint.sh
 COPY --chown=${APP_USER}:{APP_GROUP} ./backend/docker/local/fastapi/start.sh /start.sh
+COPY --chown=${APP_USER}:{APP_GROUP} ./backend/docker/local/fastapi/celery/worker/start.sh /start-celeryworker.sh
+COPY --chown=${APP_USER}:{APP_GROUP} ./backend/docker/local/fastapi/celery/beat/start.sh /start-celerybeat.sh
+COPY --chown=${APP_USER}:{APP_GROUP} ./backend/docker/local/fastapi/celery/flower/start.sh /start-flower.sh
 
 # Converting Windows style line endings to Linux style in scripts
 # sed - string editor, -i - edit files in place
-RUN sed -i 's/\r$//g' /entrypoint.sh /start.sh && \
-    chmod +x /entrypoint.sh /start.sh
+RUN sed -i 's/\r$//g' /entrypoint.sh /start.sh /start-celeryworker.sh /start-celerybeat.sh /start-flower.sh && \
+chmod +x /entrypoint.sh /start.sh /start-celeryworker.sh /start-celerybeat.sh /start-flower.sh
 
 COPY --chown=${APP_USER}:${APP_GROUP} . ${APP_HOME}
 

@@ -6,6 +6,7 @@
 .idea
 .envs/*
 !.envs/.env.example
+_myutils
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
