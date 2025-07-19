@@ -29,8 +29,8 @@ FLOWER_CMD="celery \
     --basic_auth=${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD}"
 
 # We're using watchfiles to monitor changes in python files and restart the flower
-# service 
+# service
 exec watchfiles \
     --filter python \
-    --ignore-paths '.venv,venv,_myutils,.git,__pycache__,*.pyc' \
+    --ignore-paths '.venv,venv,.vscode,_myutils,.git,__pycache__,*.pyc' \
     "${FLOWER_CMD}"
