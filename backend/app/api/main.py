@@ -5,6 +5,7 @@ from backend.app.api.routes.auth import (
     activate,
     login,
     password_reset,
+    refresh,
 )
 
 
@@ -15,3 +16,4 @@ api_router.include_router(register.router)
 api_router.include_router(activate.router)
 api_router.include_router(login.router)
 api_router.include_router(password_reset.router)
+api_router.include_router(refresh.router)

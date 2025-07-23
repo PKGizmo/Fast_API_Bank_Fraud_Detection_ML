@@ -56,22 +56,22 @@ def create_activation_token(id: uuid.UUID) -> str:
 
 
 def create_jwt_token(id: uuid.UUID, type: str = settings.COOKIE_ACCESS_NAME) -> str:
-    expire_minutes = (
-        settings.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES
-        if type == settings.COOKIE_ACCESS_NAME
-        else settings.JWT_REFRESH_TOKEN_EXPIRATION_DAYS
-    )
+    if type == settings.COOKIE_ACCESS_NAME:
+        expire_delta = timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES)
+    else:
+        expire_delta = timedelta(days=settings.JWT_REFRESH_TOKEN_EXPIRATION_DAYS)
+
     payload = {
         "id": str(id),
         "type": type,
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=expire_minutes),
+        "exp": datetime.now(timezone.utc) + expire_delta,
         "iat": datetime.now(timezone.utc),
     }
     return jwt.encode(payload, settings.SIGNING_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
 def set_auth_cookies(
-    response: Response, access_token: str, refresh_token: str | None
+    response: Response, access_token: str, refresh_token: str | None = None
 ) -> None:
     cookie_settings = {
         "path": settings.COOKIE_PATH,
