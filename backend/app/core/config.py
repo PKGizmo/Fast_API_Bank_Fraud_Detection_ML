@@ -40,6 +40,22 @@ class Settings(BaseSettings):
     SUPPORT_EMAIL: str = ""
     JWT_SECRET_KEY: str = ""
     JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRATION_MINUTES: int = 30 if ENVIRONMENT == "local" else 15
+    JWT_REFRESH_TOKEN_EXPIRATION_DAYS: int = 1
+    COOKIE_SECURE: bool = False if ENVIRONMENT == "local" else True
+    COOKIE_ACCESS_NAME: str = "access_token"
+    COOKIE_REFRESH_NAME: str = "refresh_token"
+    COOKIE_LOGGED_IN_NAME: str = "logged_in"
+
+    # To prevent cross-site scripting attacks, cookie cannot be accessed by Javascript running in the browser
+    COOKIE_HTTP_ONLY: bool = True
+
+    # Specifies if the cookie should be sent with requests to the same site
+    # "lax" means that it will be sent with requests to the same site but not subdomains
+    COOKIE_SAME_SITE: str = "lax"
+
+    COOKIE_PATH: str = "/"
+    SIGNING_KEY: str = ""
 
 
 settings = Settings()
