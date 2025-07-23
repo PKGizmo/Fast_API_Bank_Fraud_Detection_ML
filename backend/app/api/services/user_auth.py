@@ -332,7 +332,7 @@ class UserAuthService:
             return
 
         lockout_time = user.last_failed_login + timedelta(
-            minutes=settings.LOCKOUT_DURATION
+            minutes=settings.LOCKOUT_DURATION_MINUTES
         )
         current_time = datetime.now(timezone.utc)
 
