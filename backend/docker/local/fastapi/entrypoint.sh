@@ -2,7 +2,7 @@
 
 # If any command exits with status non 0, script exits immediately
 # Without this, scripts continue even when there is an error
-set -o errexit 
+set -o errexit
 
 # This sets non set variables as errors and exits the scripts
 # Helps to catch but with undefinied variables
@@ -40,16 +40,18 @@ def check_database():
 while True:
     if check_database():
         break
-    
+
     if time.time() - start_time > MAX_WAIT_SECONDS:
         sys.stderr.write(f"Error: Database connection could not be established after {MAX_WAIT_SECONDS} seconds.\n")
         sys.exit(1)
-    
+
     sys.stderr.write(f"Waiting {RETRY_INTERVAL} seconds before retrying...\n")
     time.sleep(RETRY_INTERVAL)
 END
 
->&2 echo 'PostgreSQL is ready to accept connections'
+echo >&2 'PostgreSQL is ready to accept connections'
+
+alembic upgrade head
 
 # Passing all the arguments to the entrypoint.sh
 # Replacing shell with the main process
