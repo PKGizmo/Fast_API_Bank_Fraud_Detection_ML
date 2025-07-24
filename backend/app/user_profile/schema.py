@@ -4,9 +4,8 @@ from datetime import date
 from pydantic_extra_types.country import CountryShortName
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
-# from pydantic import field_validator
-
-# from backend.app.user_profile import validate_id_dates
+from pydantic import field_validator
+from backend.app.user_profile.utils import validate_id_dates
 
 
 class SalutationSchema(str, Enum):
@@ -15,7 +14,7 @@ class SalutationSchema(str, Enum):
     Miss = "Miss"
 
 
-class GenerSchema(str, Enum):
+class GenderSchema(str, Enum):
     Male = "Male"
     Female = "Female"
 
@@ -33,7 +32,7 @@ class IdentificationTypeSchema(str, Enum):
     National_ID = "National_ID"
 
 
-class EmployementStatusSchema(str, Enum):
+class EmploymentStatusSchema(str, Enum):
     Employed = "Employed"
     Unemployed = "Unemployed"
     Self_Employed = "Self_Employed"
@@ -43,7 +42,7 @@ class EmployementStatusSchema(str, Enum):
 
 class ProfileBaseSchema(SQLModel):
     title: SalutationSchema
-    gender: GenerSchema
+    gender: GenderSchema
     date_of_birth: date
     country_of_birth: CountryShortName
     place_of_birth: str
@@ -57,12 +56,20 @@ class ProfileBaseSchema(SQLModel):
     address: str
     city: str
     country: str
-    employement_status: EmployementStatusSchema
+    employment_status: EmploymentStatusSchema
     employer_name: str
     employer_address: str
     employer_country: CountryShortName
     annual_income: float
-    date_of_employement: date
+    date_of_employment: date
     profile_photo_url: str | None = Field(default=None)
     id_photo_url: str | None = Field(default=None)
     signature_photo_url: str | None = Field(default=None)
+
+
+class ProfileCreateSchema(ProfileBaseSchema):
+    @field_validator("id_expiry_date")
+    def validate_id_dates(cls, v, values):  # v - expiry date that is being validated
+        if "id_issue_date" in values.data:
+            validate_id_dates(values.data["id_issue_date"], v)
+        return v
