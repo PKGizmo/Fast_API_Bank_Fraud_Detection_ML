@@ -20,6 +20,7 @@ from backend.app.api.routes.profile import (
 from backend.app.api.routes.next_of_kin import (
     create as create_next_of_kin,
     all as get_all_next_of_kins,
+    update as update_next_of_kin,
 )
 
 
@@ -39,3 +40,4 @@ api_router.include_router(me.router)
 api_router.include_router(all_profiles.router)
 api_router.include_router(create_next_of_kin.router)
 api_router.include_router(get_all_next_of_kins.router)
+api_router.include_router(update_next_of_kin.router)
