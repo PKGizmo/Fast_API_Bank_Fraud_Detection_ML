@@ -3,7 +3,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from backend.app.core.logging import get_logger
 from backend.app.user_profile.schema import ProfileCreateSchema
 from backend.app.user_profile.models import Profile
-from backend.app.api.routes.auth.dependency import CurrentUser
+from backend.app.api.routes.auth.dependencies import CurrentUser
 from backend.app.core.db import get_session
 from backend.app.api.services.profile import create_user_profile
 

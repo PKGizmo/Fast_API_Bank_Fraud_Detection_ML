@@ -26,14 +26,14 @@ class SecurityQuestionsSchema(str, Enum):
         return descriptions.get(value, "Unknown security question")
 
 
-class AccountStatusSchema(str, Enum):
+class AccountStatusEnum(str, Enum):
     ACTIVE = "active"
     INACTIVE = "inactive"
     LOCKED = "locked"
     PENDING = "pending"
 
 
-class RoleChoicesSchema(str, Enum):
+class RoleChoicesEnum(str, Enum):
     CUSTOMER = "customer"
     ACCOUNT_EXECUTIVE = "account_executive"
     BRANCH_MANAGER = "branch_manager"
@@ -53,8 +53,8 @@ class BaseUserSchema(SQLModel):
     is_superuser: bool = False
     security_question: SecurityQuestionsSchema = Field(max_length=30)
     security_answer: str = Field(max_length=30)
-    account_status: AccountStatusSchema = Field(default=AccountStatusSchema.INACTIVE)
-    role: RoleChoicesSchema = Field(default=RoleChoicesSchema.CUSTOMER)
+    account_status: AccountStatusEnum = Field(default=AccountStatusEnum.INACTIVE)
+    role: RoleChoicesEnum = Field(default=RoleChoicesEnum.CUSTOMER)
 
 
 class UserCreateSchema(BaseUserSchema):

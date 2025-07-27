@@ -14,7 +14,7 @@ from backend.app.api.services.profile import (
 
 from backend.app.user_profile.enums import ImageTypeEnum
 from backend.app.core.celery_app import celery_app
-from backend.app.api.routes.auth.dependency import CurrentUser
+from backend.app.api.routes.auth.dependencies import CurrentUser
 from backend.app.core.logging import get_logger
 from backend.app.core.utils.image import validate_image
 from backend.app.core.db import get_session

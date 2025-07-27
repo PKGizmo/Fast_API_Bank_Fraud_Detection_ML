@@ -33,3 +33,6 @@ inspect-network:
 
 psql:
 	docker compose -f local.yml exec -it postgresdb psql -U gizmowsky -d fastapidb
+
+downgrade-1:
+	docker compose -f local.yml exec -it api alembic downgrade -1

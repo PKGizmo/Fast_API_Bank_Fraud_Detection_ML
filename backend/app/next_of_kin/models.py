@@ -6,14 +6,14 @@ from sqlmodel import Field, Column, Relationship
 from sqlalchemy.dialects import postgresql as pg
 from sqlalchemy import text, func
 
-from backend.app.user_profile.schema import ProfileBaseSchema
+from backend.app.next_of_kin.schema import NextOfKinBaseSchema
 
 # To avoid circular imports
 if TYPE_CHECKING:
     from backend.app.auth.models import User
 
 
-class Profile(ProfileBaseSchema, table=True):
+class NextOfKin(NextOfKinBaseSchema, table=True):
     id: uuid.UUID = Field(
         sa_column=Column(
             pg.UUID(as_uuid=True),
@@ -38,9 +38,6 @@ class Profile(ProfileBaseSchema, table=True):
         ),
     )
 
-    # 1 to 1 relationship
     user_id: uuid.UUID = Field(foreign_key="user.id")
 
-    # Profile instance can access it's user via the 'profile'
-    # User instance can access it's profile via the 'user'
-    user: "User" = Relationship(back_populates="profile")
+    user: "User" = Relationship(back_populates="next_of_kins")

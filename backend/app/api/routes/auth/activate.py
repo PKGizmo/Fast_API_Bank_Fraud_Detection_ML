@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 from backend.app.core.db import get_session
 from backend.app.core.logging import get_logger
-from backend.app.auth.schema import AccountStatusSchema
+from backend.app.auth.schema import AccountStatusEnum
 from backend.app.api.services.user_auth import user_auth_service
 from backend.app.core.config import settings
 from backend.app.auth.utils import create_activation_token
@@ -86,7 +86,7 @@ async def resend_activation_link(
                     "message": "If an account exists with this email, please check your inbox for the activation link",
                 },
             )
-        if user.is_active or user.account_status == AccountStatusSchema.ACTIVE:
+        if user.is_active or user.account_status == AccountStatusEnum.ACTIVE:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail={

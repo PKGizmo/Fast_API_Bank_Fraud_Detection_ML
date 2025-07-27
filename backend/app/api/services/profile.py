@@ -7,7 +7,7 @@ from backend.app.user_profile.models import Profile
 from backend.app.user_profile.schema import (
     ProfileCreateSchema,
     ProfileUpdateSchema,
-    RoleChoicesSchema,
+    RoleChoicesEnum,
 )
 from backend.app.user_profile.enums import ImageTypeEnum
 
@@ -230,7 +230,7 @@ async def get_all_user_profiles(
 ) -> tuple[list[User], int]:
     try:
         # Only Branch Manager role can get all user profiles
-        if current_user.role != RoleChoicesSchema.BRANCH_MANAGER:
+        if current_user.role != RoleChoicesEnum.BRANCH_MANAGER:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={

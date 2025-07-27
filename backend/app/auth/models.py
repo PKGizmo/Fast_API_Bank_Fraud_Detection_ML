@@ -5,10 +5,11 @@ from sqlmodel import Field, Column, Relationship
 from pydantic import computed_field
 from sqlalchemy.dialects import postgresql as pg
 from sqlalchemy import text, func
-from backend.app.auth.schema import BaseUserSchema, RoleChoicesSchema
+from backend.app.auth.schema import BaseUserSchema, RoleChoicesEnum
 
 if TYPE_CHECKING:
     from backend.app.user_profile.models import Profile
+    from backend.app.next_of_kin.models import NextOfKin
 
 
 class User(BaseUserSchema, table=True):
@@ -53,11 +54,13 @@ class User(BaseUserSchema, table=True):
         },
     )
 
+    next_of_kins: list["NextOfKin"] = Relationship(back_populates="user")
+
     @computed_field
     @property
     def full_name(self) -> str:
         full_name = f"{self.first_name} {self.middle_name + ' ' if self.middle_name else ''}{self.last_name}"
         return full_name.title().strip()
 
-    def has_role(self, role: RoleChoicesSchema) -> bool:
+    def has_role(self, role: RoleChoicesEnum) -> bool:
         return self.role.value == role.value

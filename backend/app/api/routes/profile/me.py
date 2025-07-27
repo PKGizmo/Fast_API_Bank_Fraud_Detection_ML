@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
-from backend.app.api.routes.auth.dependency import CurrentUser
+from backend.app.api.routes.auth.dependencies import CurrentUser
 from backend.app.user_profile.schema import ProfileResponseSchema
 from backend.app.core.logging import get_logger
 from backend.app.core.db import get_session

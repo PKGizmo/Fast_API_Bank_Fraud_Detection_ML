@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from backend.app.auth.models import User
-from backend.app.auth.schema import AccountStatusSchema, UserCreateSchema
+from backend.app.auth.schema import AccountStatusEnum, UserCreateSchema
 from backend.app.core.services.login_otp import send_login_otp_email
 from backend.app.core.services.account_lockout import send_account_lockout_email
 
@@ -90,8 +90,8 @@ class UserAuthService:
             user.otp = ""
             user.otp_expiry_time = None
 
-        if user.account_status == AccountStatusSchema.LOCKED:
-            user.account_status = AccountStatusSchema.ACTIVE
+        if user.account_status == AccountStatusEnum.LOCKED:
+            user.account_status = AccountStatusEnum.ACTIVE
 
         await session.commit()
 
@@ -113,7 +113,7 @@ class UserAuthService:
                 },
             )
 
-        if user.account_status == AccountStatusSchema.LOCKED:
+        if user.account_status == AccountStatusEnum.LOCKED:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail={
@@ -123,7 +123,7 @@ class UserAuthService:
                 },
             )
 
-        if user.account_status == AccountStatusSchema.INACTIVE:
+        if user.account_status == AccountStatusEnum.INACTIVE:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail={
@@ -191,7 +191,7 @@ class UserAuthService:
             username=generate_username(),
             hashed_password=generate_password_hash(password),
             is_active=False,
-            account_status=AccountStatusSchema.PENDING,
+            account_status=AccountStatusEnum.PENDING,
             **user_data_dict,
         )
 
@@ -238,7 +238,7 @@ class UserAuthService:
             await self.reset_user_state(user, session, clear_otp=True, log_action=True)
 
             user.is_active = True
-            user.account_status = AccountStatusSchema.ACTIVE
+            user.account_status = AccountStatusEnum.ACTIVE
 
             await session.commit()
             await session.refresh(user)
@@ -327,7 +327,7 @@ class UserAuthService:
         user: User,
         session: AsyncSession,
     ) -> None:
-        if user.account_status != AccountStatusSchema.LOCKED:
+        if user.account_status != AccountStatusEnum.LOCKED:
             return
         if user.last_failed_login is None:
             return
@@ -367,7 +367,7 @@ class UserAuthService:
         user.last_failed_login = current_time
 
         if user.failed_login_attempts >= settings.LOGIN_ATTEMPTS:
-            user.account_status = AccountStatusSchema.LOCKED
+            user.account_status = AccountStatusEnum.LOCKED
 
             try:
                 await send_account_lockout_email(user.email, current_time)

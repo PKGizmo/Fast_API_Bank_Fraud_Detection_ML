@@ -6,24 +6,24 @@ from pydantic_extra_types.phone_numbers import PhoneNumber
 
 from pydantic import field_validator
 from backend.app.user_profile.utils import validate_id_dates
-from backend.app.auth.schema import RoleChoicesSchema
+from backend.app.auth.schema import RoleChoicesEnum
 
 from backend.app.user_profile.enums import (
-    SalutationSchema,
-    GenderSchema,
-    MaritalStatusSchema,
+    SalutationEnum,
+    GenderEnum,
+    MaritalStatusEnum,
     IdentificationTypeEnum,
     EmploymentStatusEnum,
 )
 
 
 class ProfileBaseSchema(SQLModel):
-    title: SalutationSchema
-    gender: GenderSchema
+    title: SalutationEnum
+    gender: GenderEnum
     date_of_birth: date
     country_of_birth: CountryShortName
     place_of_birth: str
-    marital_status: MaritalStatusSchema
+    marital_status: MaritalStatusEnum
     means_of_identification: IdentificationTypeEnum
     id_issue_date: date
     id_expiry_date: date
@@ -53,12 +53,12 @@ class ProfileCreateSchema(ProfileBaseSchema):
 
 
 class ProfileUpdateSchema(ProfileBaseSchema):
-    title: SalutationSchema | None = None
-    gender: GenderSchema | None = None
+    title: SalutationEnum | None = None
+    gender: GenderEnum | None = None
     date_of_birth: date | None = None
     country_of_birth: CountryShortName | None = None
     place_of_birth: str | None = None
-    marital_status: MaritalStatusSchema | None = None
+    marital_status: MaritalStatusEnum | None = None
     means_of_identification: IdentificationTypeEnum | None = None
     id_issue_date: date | None = None
     id_expiry_date: date | None = None
@@ -90,7 +90,7 @@ class ProfileResponseSchema(SQLModel):
     last_name: str
     email: str
     id_no: str
-    role: RoleChoicesSchema
+    role: RoleChoicesEnum
     profile: ProfileBaseSchema | None
 
     class Config:

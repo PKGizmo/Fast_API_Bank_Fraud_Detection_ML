@@ -1,18 +1,18 @@
 from enum import Enum
 
 
-class SalutationSchema(str, Enum):
+class SalutationEnum(str, Enum):
     Mr = "Mr"
     Mrs = "Mrs"
     Miss = "Miss"
 
 
-class GenderSchema(str, Enum):
+class GenderEnum(str, Enum):
     Male = "Male"
     Female = "Female"
 
 
-class MaritalStatusSchema(str, Enum):
+class MaritalStatusEnum(str, Enum):
     Married = "Married"
     Divorced = "Divorced"
     Single = "Single"
