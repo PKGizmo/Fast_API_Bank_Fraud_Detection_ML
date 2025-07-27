@@ -19,13 +19,13 @@ class MaritalStatusSchema(str, Enum):
     Widowed = "Widowed"
 
 
-class IdentificationTypeSchema(str, Enum):
+class IdentificationTypeEnum(str, Enum):
     Passport = "Passport"
     Drivers_License = "Drivers_License"
     National_ID = "National_ID"
 
 
-class EmploymentStatusSchema(str, Enum):
+class EmploymentStatusEnum(str, Enum):
     Employed = "Employed"
     Unemployed = "Unemployed"
     Self_Employed = "Self_Employed"
@@ -33,7 +33,7 @@ class EmploymentStatusSchema(str, Enum):
     Retired = "Retired"
 
 
-class ImageTypeSchema(str, Enum):
+class ImageTypeEnum(str, Enum):
     PROFILE_PHOTO = "profile_photo"
     ID_PHOTO = "id_photo"
     SIGNATURE_PHOTO = "signature_photo"

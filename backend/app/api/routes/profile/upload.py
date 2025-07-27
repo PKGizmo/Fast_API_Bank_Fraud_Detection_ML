@@ -12,7 +12,7 @@ from backend.app.api.services.profile import (
     update_profile_image_url,
 )
 
-from backend.app.user_profile.enums import ImageTypeSchema
+from backend.app.user_profile.enums import ImageTypeEnum
 from backend.app.core.celery_app import celery_app
 from backend.app.api.routes.auth.dependency import CurrentUser
 from backend.app.core.logging import get_logger
@@ -25,7 +25,7 @@ router = APIRouter(prefix="/profile")
 
 @router.post("/upload/{image_type}", status_code=status.HTTP_202_ACCEPTED)
 async def upload_profile_image(
-    image_type: ImageTypeSchema,
+    image_type: ImageTypeEnum,
     current_user: CurrentUser,
     file: UploadFile = File(...),
 ) -> dict:
@@ -86,7 +86,7 @@ async def get_upload_status(
 
                 await update_profile_image_url(
                     user_id=curret_user.id,
-                    image_type=ImageTypeSchema(result["image_type"]),
+                    image_type=ImageTypeEnum(result["image_type"]),
                     image_url=result["url"],
                     session=session,
                 )
