@@ -7,9 +7,9 @@ from backend.app.user_profile.models import Profile
 from backend.app.user_profile.schema import (
     ProfileCreateSchema,
     ProfileUpdateSchema,
-    ImageTypeSchema,
     RoleChoicesSchema,
 )
+from backend.app.user_profile.enums import ImageTypeSchema
 
 from backend.app.auth.models import User
 

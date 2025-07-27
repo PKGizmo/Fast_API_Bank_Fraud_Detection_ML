@@ -8,37 +8,13 @@ from pydantic import field_validator
 from backend.app.user_profile.utils import validate_id_dates
 from backend.app.auth.schema import RoleChoicesSchema
 
-
-class SalutationSchema(str, Enum):
-    Mr = "Mr"
-    Mrs = "Mrs"
-    Miss = "Miss"
-
-
-class GenderSchema(str, Enum):
-    Male = "Male"
-    Female = "Female"
-
-
-class MaritalStatusSchema(str, Enum):
-    Married = "Married"
-    Divorced = "Divorced"
-    Single = "Single"
-    Widowed = "Widowed"
-
-
-class IdentificationTypeSchema(str, Enum):
-    Passport = "Passport"
-    Drivers_License = "Drivers_License"
-    National_ID = "National_ID"
-
-
-class EmploymentStatusSchema(str, Enum):
-    Employed = "Employed"
-    Unemployed = "Unemployed"
-    Self_Employed = "Self_Employed"
-    Student = "Student"
-    Retired = "Retired"
+from backend.app.user_profile.enums import (
+    SalutationSchema,
+    GenderSchema,
+    MaritalStatusSchema,
+    IdentificationTypeSchema,
+    EmploymentStatusSchema,
+)
 
 
 class ProfileBaseSchema(SQLModel):
@@ -105,12 +81,6 @@ class ProfileUpdateSchema(ProfileBaseSchema):
         if v is not None and "id_issue_date" in values.data:
             validate_id_dates(values.data["id_issue_date"], v)
         return v
-
-
-class ImageTypeSchema(str, Enum):
-    PROFILE_PHOTO = "profile_photo"
-    ID_PHOTO = "id_photo"
-    SIGNATURE_PHOTO = "signature_photo"
 
 
 class ProfileResponseSchema(SQLModel):

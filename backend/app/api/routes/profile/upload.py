@@ -12,7 +12,7 @@ from backend.app.api.services.profile import (
     update_profile_image_url,
 )
 
-from backend.app.user_profile.schema import ImageTypeSchema
+from backend.app.user_profile.enums import ImageTypeSchema
 from backend.app.core.celery_app import celery_app
 from backend.app.api.routes.auth.dependency import CurrentUser
 from backend.app.core.logging import get_logger
