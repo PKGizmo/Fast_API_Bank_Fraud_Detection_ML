@@ -44,7 +44,7 @@ services:
     deploy:
         resources:
             limits:
-                cpus: '2.0'
+                cpus: '1.0'
 
   mailpit:
     image: docker.io/axllent/mailpit:v1.20.3
@@ -103,7 +103,7 @@ services:
     deploy:
         resources:
             limits:
-                cpus: '2.0'
+                cpus: '1.0'
 
   flower:
     <<: *api
@@ -129,7 +129,7 @@ services:
     deploy:
         resources:
             limits:
-                cpus: '2.0'
+                cpus: '1.0'
 
 networks:
   fastapi_bank_local_network:

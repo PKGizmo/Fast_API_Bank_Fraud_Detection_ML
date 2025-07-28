@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block header %} Your account is now active {% endblock header %}
+
+{% block content %}
+
+Dear {{full_name}},
+
+Great news! Your bank account has been fully activated, following successfull verification of your KYC information.
+
+Account details:
+- Account Number: {{account_number}}
+- Account Name: {{account_name}}
+- Account Type: {{account_type}}
+- Currency: {{currency}}
+
+Your account is now fully operational.
+
+You can now:
+* Make deposits and withdrawals.
+* View your account and statements and transaction history.
+* Use mobile banking and internet banking services.
+* Access your account information anytime, anywhere.
+
+If you notice any suspicious activity on your account, please contact our customer support team immediately.
+
+Thank you for choosing {{site_name}}.
+
+{% endblock content %}
