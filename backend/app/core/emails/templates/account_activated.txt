@@ -6,7 +6,7 @@
 
 Dear {{full_name}},
 
-Great news! Your bank account has been fully activated, following successfull verification of your KYC information.
+Great news! Your bank account has been fully activated, following successful verification of your KYC information.
 
 Account details:
 - Account Number: {{account_number}}
