@@ -39,7 +39,7 @@ class Profile(ProfileBaseSchema, table=True):
     )
 
     # 1 to 1 relationship
-    user_id: uuid.UUID = Field(foreign_key="user.id")
+    user_id: uuid.UUID = Field(foreign_key="user.id", ondelete="CASCADE")
 
     # Profile instance can access it's user via the 'profile'
     # User instance can access it's profile via the 'user'

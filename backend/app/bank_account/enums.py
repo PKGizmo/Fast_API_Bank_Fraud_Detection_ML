@@ -8,17 +8,17 @@ class AccountTypeEnum(str, Enum):
     Business = "business"
 
 
-class AccountStatusEnum(str, Enum):
+class BankAccountStatusEnum(str, Enum):
     Active = "active"
     Inactive = "inactive"
     Pending = "pending"
     Closed = "closed"
-    Frozen = "Frozen"
+    Frozen = "frozen"
 
 
 class AccountCurrencyEnum(str, Enum):
-    USD = "usd"
-    EUR = "eur"
-    GBP = "gbp"
-    KES = "kes"
-    PLN = "pln"
+    USD = "USD"
+    EUR = "EUR"
+    GBP = "GBP"
+    KES = "KES"
+    PLN = "PLN"
