@@ -1,9 +1,12 @@
 import secrets
+from decimal import Decimal, ROUND_HALF_UP
+from typing import Tuple
+from fastapi import HTTPException, status
 
 from backend.app.bank_account.enums import AccountCurrencyEnum
 from backend.app.core.config import settings
 from backend.app.core.logging import get_logger
-from fastapi import HTTPException, status
+
 
 logger = get_logger()
 
@@ -94,3 +97,89 @@ def generate_account_number(currency: AccountCurrencyEnum) -> str:
                 "message": f"Failed to generate account number: {str(e)}",
             },
         )
+
+
+# Normally exchange rates would be stored in external place like DB or from other API
+# But here we will define them ourselves. They are arbitrary!
+EXCHANGE_RATES = {
+    "USD": {
+        "EUR": Decimal("0.93"),
+        "GBP": Decimal("0.79"),
+        "KES": Decimal("163.50"),
+        "PLN": Decimal("3.71"),
+    },
+    "GBP": {
+        "EUR": Decimal("1.17"),
+        "USD": Decimal("1.26"),
+        "KES": Decimal("205.70"),
+        "PLN": Decimal("4.95"),
+    },
+    "EUR": {
+        "GBP": Decimal("0.75"),
+        "USD": Decimal("1.08"),
+        "KES": Decimal("176.23"),
+        "PLN": Decimal("4.28"),
+    },
+    "KES": {
+        "EUR": Decimal("0.0057"),
+        "GBP": Decimal("0.0049"),
+        "USD": Decimal("0.0061"),
+        "PLN": Decimal("0.027"),
+    },
+    "PLN": {
+        "EUR": Decimal("0.23"),
+        "GBP": Decimal("0.20"),
+        "KES": Decimal("34.97"),
+        "USD": Decimal("0.27"),
+    },
+}
+
+CONVERSION_FEE_RATE = Decimal("0.005")
+
+
+def get_exchange_rate(
+    from_currency: AccountCurrencyEnum,
+    to_currency: AccountCurrencyEnum,
+) -> Decimal:
+    try:
+        rate = EXCHANGE_RATES[from_currency.value][to_currency.value]
+        # If somebody entered two same but invalid currencies
+        if from_currency == to_currency:
+            return Decimal("1.0")
+
+        return rate.quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP)
+    except KeyError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "status": "error",
+                "message": f"Exchange rate not available for {from_currency.value} to {to_currency.value}",
+            },
+        )
+
+
+def calculate_conversion(
+    amount: Decimal,
+    from_currency: AccountCurrencyEnum,
+    to_currency: AccountCurrencyEnum,
+) -> tuple[Decimal, Decimal, Decimal]:
+    # We're returning tuple of: 0) Converted Amount 1) Exchange Rate 2) Conversion Fee
+
+    exchange_rate = get_exchange_rate(from_currency, to_currency)
+
+    # Checking this below function because function will raise exception if
+    # currencies are not in dictionary
+    if from_currency == to_currency:
+        return amount, Decimal("1.0"), Decimal("0")
+
+    conversion_fee = (amount * CONVERSION_FEE_RATE).quantize(
+        Decimal("0.01"), rounding=ROUND_HALF_UP
+    )
+
+    amount_after_fee = amount - conversion_fee
+
+    converted_amount = (amount_after_fee * exchange_rate).quantize(
+        Decimal("0.01"), rounding=ROUND_HALF_UP
+    )
+
+    return converted_amount, exchange_rate, conversion_fee
