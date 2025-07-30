@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base.txt" %}
 
 {% block header %} {% if is_sender %}Transfer Confirmation {% else %} Transfer Received {% endif %}{% endblock %}
 

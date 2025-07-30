@@ -19,7 +19,7 @@ async def mark_transaction_failed(
     error_message: Optional[str] = None,
 ) -> None:
     try:
-        transaction.status = TransactionStatusEnum.Failed
+        transaction.transaction_status = TransactionStatusEnum.Failed
         transaction.failed_reason = reason.value
         current_metadata = transaction.transaction_metadata or {}
         failure_details = {

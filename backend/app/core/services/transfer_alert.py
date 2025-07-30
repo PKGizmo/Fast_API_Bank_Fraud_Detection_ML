@@ -73,6 +73,7 @@ async def send_transfer_alert(
                         format_currency(conversion_fee) if conversion_fee else "0.00"
                     ),
                     "to_currency": receiver_currency.value,
+                    "from_currency": sender_currency.value,
                 }
             )
 
@@ -93,7 +94,8 @@ async def send_transfer_alert(
             receiver_context.update(
                 {
                     "original_amount": format_currency(amount),
-                    "from_currencty": sender_currency.value,
+                    "from_currency": sender_currency.value,
+                    "to_currency": receiver_currency.value,
                     "exchange_rate": (
                         format_currency(exchange_rate) if exchange_rate else "1.00"
                     ),

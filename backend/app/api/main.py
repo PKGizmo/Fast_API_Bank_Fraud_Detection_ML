@@ -28,6 +28,7 @@ from backend.app.api.routes.bank_account import (
     create as create_bank_account,
     activate as activate_bank_account,
     deposit,
+    transfer,
 )
 
 api_router = APIRouter()
@@ -51,3 +52,4 @@ api_router.include_router(delete_next_of_kin.router)
 api_router.include_router(create_bank_account.router)
 api_router.include_router(activate_bank_account.router)
 api_router.include_router(deposit.router)
+api_router.include_router(transfer.router)
