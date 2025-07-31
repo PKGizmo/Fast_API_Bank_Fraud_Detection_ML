@@ -33,6 +33,8 @@ from backend.app.api.routes.bank_account import (
     transaction_history,
 )
 
+from backend.app.api.routes.bank_account import statement
+
 api_router = APIRouter()
 
 api_router.include_router(home.router)
@@ -57,3 +59,4 @@ api_router.include_router(deposit.router)
 api_router.include_router(transfer.router)
 api_router.include_router(withdrawal.router)
 api_router.include_router(transaction_history.router)
+api_router.include_router(statement.router)
