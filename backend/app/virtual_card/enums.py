@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class VirtualCardStatusEnum(str, Enum):
-    Active = "acvite"
+    Active = "active"
     Inactive = "inactive"
     Pending = "pending"
     Blocked = "blocked"

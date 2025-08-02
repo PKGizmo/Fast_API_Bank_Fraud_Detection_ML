@@ -6,7 +6,7 @@
 
 Dear {{full_name}},
 
-Great news!. Your virtual card has been activated and is now ready for use.:
+Great news! Your virtual card has been activated and is now ready for use.:
 
   Card Type: {{ card_type }}
   Card Number: {{ masked_card_number }}

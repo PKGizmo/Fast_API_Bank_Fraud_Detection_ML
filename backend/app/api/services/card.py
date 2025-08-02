@@ -68,7 +68,7 @@ async def create_virtual_card(
 
         card_currency = card_data.get("currency")
 
-        if card_data != bank_account.currency:
+        if card_currency != bank_account.currency:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail={
@@ -97,7 +97,7 @@ async def create_virtual_card(
             card_number=card_number,
             bank_account_id=bank_account_id,
             card_status=VirtualCardStatusEnum.Pending,
-            is_active=False,
+            is_active=True,
             available_balance=0.0,
             total_topped_up=0.0,
             last_top_up_date=datetime.now(timezone.utc),
@@ -289,7 +289,7 @@ async def top_up_virtual_card(
             completed_at=current_time,
             transaction_metadata={
                 "top_up_type": "virtual_card",
-                "card_id": str(card_id),
+                "card_id": str(card.id),
                 "card_last_four": card.last_four_digits,
                 "currency": card.currency.value,
             },
@@ -298,6 +298,7 @@ async def top_up_virtual_card(
         bank_account.account_balance = float(balance_after)
         card.available_balance += amount
         card.total_topped_up += amount
+
         card.last_top_up_date = current_time
 
         session.add(transaction)
@@ -414,9 +415,13 @@ async def delete_virtual_card(
     session: AsyncSession,
 ) -> dict:
     try:
-        statement = select(VirtualCard, BankAccount).where(
-            VirtualCard.id == card_id,
-            BankAccount.user_id == user_id,
+        statement = (
+            select(VirtualCard, BankAccount)
+            .join(BankAccount)
+            .where(
+                VirtualCard.id == card_id,
+                BankAccount.user_id == user_id,
+            )
         )
         result = await session.exec(statement)
 
@@ -458,7 +463,7 @@ async def delete_virtual_card(
 
         new_metadata = {
             **existing_metadata,
-            "deleted_at": deletion_time.isoformat,
+            "deleted_at": deletion_time.isoformat(),
             "deletion_reason": "user_requested",
             "deleted_by": str(user_id),
             "card_status_before_deletion": card.card_status.value,

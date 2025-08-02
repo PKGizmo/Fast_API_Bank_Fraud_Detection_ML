@@ -16,8 +16,8 @@ async def send_card_created_email(
     currency: str,
     masked_card_number: str,
     name_on_card: str,
-    daily_limit: str,
-    monthly_limit: str,
+    daily_limit: float,
+    monthly_limit: float,
     expiry_date: str,
 ) -> None:
     context = {
