@@ -1,7 +1,7 @@
 import uuid
 from uuid import UUID
 from datetime import datetime, timezone
-from sqlmodel import Field, Column, Relationship
+from sqlmodel import Field, Column
 
 from sqlalchemy import text
 from sqlalchemy.dialects import postgresql as pg

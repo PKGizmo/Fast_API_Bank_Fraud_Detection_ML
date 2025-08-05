@@ -6,7 +6,7 @@ class AISettings(BaseSettings):
     # If transaction risk score exceeds this value, it's going to be considered high risk
     RISK_SCORE_TRESHOLD: float = 0.7
     MODEL_VERSION: str = "1.0.0"
-    ANALYSIS_MODEL_DAYS: int = 90
+    ANALYSIS_WINDOW_DAYS: int = 90
 
     # Sum must add to 1.0 (100%)
     RISK_WEIGHTS: dict[str, float] = {
