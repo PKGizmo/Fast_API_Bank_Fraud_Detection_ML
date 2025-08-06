@@ -177,7 +177,7 @@ class StatementResponseSchema(SQLModel):
 class TransactionReviewSchema(SQLModel):
     is_fraud: bool
     notes: str | None = None
-    approved_transaction: bool = False
+    approve_transaction: bool
 
 
 class RiskHistoryParams(SQLModel):
@@ -185,8 +185,8 @@ class RiskHistoryParams(SQLModel):
     end_date: datetime | None = None
     min_risk_score: float | None = None
     user_id: str | None = None
-    skip: int | None = 0
-    limit: int | None = 20
+    skip: int = 0
+    limit: int = 20
 
 
 class RiskHistoryItemSchema(SQLModel):

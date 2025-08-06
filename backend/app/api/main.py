@@ -43,6 +43,11 @@ from backend.app.api.routes.card import (
     topup as topup_vcard,
 )
 
+from backend.app.api.routes.transaction import (
+    fraud_review,
+    risk_history,
+)
+
 api_router = APIRouter()
 
 api_router.include_router(home.router)
@@ -73,3 +78,5 @@ api_router.include_router(activate_vcard.router)
 api_router.include_router(block_vcard.router)
 api_router.include_router(topup_vcard.router)
 api_router.include_router(delete_vcard.router)
+api_router.include_router(fraud_review.router)
+api_router.include_router(risk_history.router)

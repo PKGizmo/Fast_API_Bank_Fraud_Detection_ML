@@ -6,8 +6,7 @@
 
 Dear {{ user_name }}
 
-{% if is_sender %}Your transfer has been completed successfully {% else %} You have received a transfer to your
-  account {% endif %} Here are the details:
+{% if is_sender %}Your transfer has been completed successfully{% else %}You have received a transfer to your account{% endif %}. Here are the details:
 
     {% if is_sender %}
      Amount Sent: {{ from_currency }} {{ amount }}

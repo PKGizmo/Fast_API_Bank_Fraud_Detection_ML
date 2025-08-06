@@ -1,13 +1,15 @@
-from uuid import UUID
-import numpy as np
-from typing import Tuple
 from datetime import datetime, timedelta, timezone
+from typing import Tuple
+from uuid import UUID
+
+import numpy as np
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-from backend.app.transaction.models import Transaction
-from backend.app.core.logging import get_logger
+
 from backend.app.core.ai.config import ai_settings
+from backend.app.core.logging import get_logger
 from backend.app.core.utils.number_format import format_currency
+from backend.app.transaction.models import Transaction
 
 logger = get_logger()
 
@@ -18,6 +20,7 @@ class TransactionAnalyzer:
             "amount",
             "time_of_day",
             "day_of_week",
+            "frequency",
             "pattern_match",
             "historical_amount",
             "velocity_amount",
@@ -30,7 +33,6 @@ class TransactionAnalyzer:
         days: int = ai_settings.ANALYSIS_WINDOW_DAYS,
     ) -> list[Transaction]:
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
-
         query = select(Transaction).where(
             Transaction.sender_id == user_id, Transaction.created_at >= cutoff_date
         )
@@ -38,10 +40,7 @@ class TransactionAnalyzer:
         return list(result)
 
     def _normalize_hour(self, hour: int) -> float:
-        banking_hours = (
-            ai_settings.BANKING_HOURS_START,
-            ai_settings.BANKING_HOURS_END,
-        )
+        banking_hours = (ai_settings.BANKING_HOURS_START, ai_settings.BANKING_HOURS_END)
 
         if banking_hours[0] <= hour <= banking_hours[1]:
             return ai_settings.BANKING_HOURS_RISK
@@ -51,11 +50,8 @@ class TransactionAnalyzer:
             return ai_settings.OFF_HOURS_RISK
 
     def _calculate_frequency(
-        self,
-        transaction: Transaction,
-        history: list[Transaction],
+        self, transaction: Transaction, history: list[Transaction]
     ) -> float:
-        # 0.5 is an arbitrary default value
         if not history:
             return 0.5
 
@@ -72,31 +68,24 @@ class TransactionAnalyzer:
 
         avg_gap = float(np.mean(gaps))
 
-        # If transactions are one after another, the risk is high
         if avg_gap == 0:
             return 1.0
 
         current_gap = (transaction.created_at - timestamps[-1]).total_seconds() / 3600
 
-        # Normalizing the current time gap to the value between 0 and 1
         return min(1.0, abs(1 - (current_gap / avg_gap)))
 
     def _check_round_amounts(
-        self,
-        transaction: Transaction,
-        history: list[Transaction],
+        self, transaction: Transaction, history: list[Transaction]
     ) -> float:
         amount = float(transaction.amount)
+
         is_round = amount.is_integer()
 
         str_amount = str(int(amount))
 
         zero_count = len(str_amount) - len(str_amount.rstrip("0"))
 
-        # The more trailing zeroes are in transaction amount, the higher the risk
-        # For amount 100, zero_count is 2 and so, risk score is 2*0.2 = 0.4
-        # min() ensures that risk is not greater than 1
-        # Adding 0.3 to risk if amount is a round number (has no decimal point)
         risk_score = min(1.0, (zero_count * 0.2) + (0.3 if is_round else 0))
 
         return risk_score
@@ -108,7 +97,6 @@ class TransactionAnalyzer:
             return 0.0
 
         current_amount = float(transaction.amount)
-
         same_amount_count = sum(
             1 for t in history if abs(float(t.amount) - current_amount) < 0.01
         )
@@ -128,9 +116,9 @@ class TransactionAnalyzer:
         if not recent_transactions:
             return {"frequency_score": 0.0, "amount_velocity_score": 0.0}
 
-        transaction_count = len(recent_transactions)
+        tx_count = len(recent_transactions)
 
-        freqency_score = min(1.0, transaction_count / ai_settings.FREQUENCY_THRESHOLD)
+        freq_score = min(1.0, tx_count / ai_settings.FREQUENCY_THRESHOLD)
 
         total_volume = sum(float(t.amount) for t in recent_transactions) + float(
             transaction.amount
@@ -138,24 +126,19 @@ class TransactionAnalyzer:
 
         amount_velocity_score = min(1.0, total_volume / ai_settings.VELOCITY_THRESHOLD)
 
-        if (
-            freqency_score > ai_settings.RISK_SCORE_TRESHOLD
-            and amount_velocity_score > ai_settings.RISK_SCORE_TRESHOLD
-        ):
+        if freq_score > 0.7 and amount_velocity_score > 0.7:
             combined_score = 1.0
         else:
-            combined_score = (freqency_score + amount_velocity_score) / 2
+            combined_score = (freq_score + amount_velocity_score) / 2
 
         return {
-            "frequency_score": freqency_score,
+            "frequency_score": freq_score,
             "amount_velocity_score": amount_velocity_score,
             "combined_score": combined_score,
         }
 
     def _calculate_amount_risk(
-        self,
-        amount_ratio: float,
-        current_amount: float,
+        self, amount_ratio: float, current_amount: float
     ) -> float:
         base_risk = min(1.0, amount_ratio / 5)
 
@@ -163,11 +146,7 @@ class TransactionAnalyzer:
 
         return max(base_risk, amount_risk)
 
-    def _calculate_time_risk(
-        self,
-        time_of_day: float,
-        day_of_week: float,
-    ) -> float:
+    def _calculate_time_risk(self, time_of_day: float, day_of_week: float) -> float:
         weights = ai_settings.TIME_RISK_WEIGHTS
 
         return (time_of_day * weights["time_of_day"]) + (
@@ -175,9 +154,7 @@ class TransactionAnalyzer:
         )
 
     def _detect_patterns(
-        self,
-        transaction: Transaction,
-        history: list[Transaction],
+        self, transaction: Transaction, history: list[Transaction]
     ) -> float:
         if not history:
             return 0.5
@@ -187,16 +164,13 @@ class TransactionAnalyzer:
             "repeated_amounts": self._check_repeated_amounts(transaction, history),
             "velocity": self._check_velocity(transaction, history)["combined_score"],
         }
-
         return sum(
             score * ai_settings.PATTERN_WEIGHTS[pattern]
             for pattern, score in patterns.items()
         )
 
-    def _extract_features(
-        self,
-        transaction: Transaction,
-        history: list[Transaction],
+    def extract_features(
+        self, transaction: Transaction, history: list[Transaction]
     ) -> dict:
         features = {}
 
@@ -233,14 +207,13 @@ class TransactionAnalyzer:
     ) -> Tuple[float, dict]:
         try:
             history = await self.get_user_transaction_history(
-                user_id,
-                session,
-                ai_settings.ANALYSIS_WINDOW_DAYS,
+                user_id, session, ai_settings.ANALYSIS_WINDOW_DAYS
             )
 
-            features = self._extract_features(transaction, history)
+            features = self.extract_features(transaction, history)
 
             velocity_metrics = self._check_velocity(transaction, history)
+
             risk_scores = {
                 "amount": self._calculate_amount_risk(
                     features["amount_ratio"], float(transaction.amount)
@@ -261,10 +234,7 @@ class TransactionAnalyzer:
 
             final_score = (
                 max(base_score, 0.9)
-                if (
-                    risk_scores["amount"] > ai_settings.HIGH_AMOUNT_THRESHOLD
-                    and risk_scores["frequency"] > ai_settings.HIGH_RISK_SCORE_THRESHOLD
-                )
+                if (risk_scores["amount"] > 0.7 and risk_scores["frequency"] > 0.7)
                 else base_score
             )
 
@@ -273,16 +243,13 @@ class TransactionAnalyzer:
             high_risk_triggers = []
 
             if final_score > ai_settings.HIGH_RISK_SCORE_THRESHOLD:
-                if risk_scores["amount"] > ai_settings.HIGH_AMOUNT_THRESHOLD:
+                if risk_scores["amount"] > 0.7:
                     high_risk_triggers.append("high_amount")
 
-                if risk_scores["frequency"] > ai_settings.HIGH_RISK_SCORE_THRESHOLD:
+                if risk_scores["frequency"] > 0.7:
                     high_risk_triggers.append("high_frequency")
 
-                if (
-                    risk_scores["velocity_amount"]
-                    > ai_settings.HIGH_RISK_SCORE_THRESHOLD
-                ):
+                if risk_scores["velocity_amount"] > 0.7:
                     high_risk_triggers.append("high_velocity")
 
             risk_factors = {
@@ -303,11 +270,13 @@ class TransactionAnalyzer:
             risk_factors["transaction_summary"] = {
                 "amount": format_currency(str(transaction.amount)),
                 "time": transaction.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-                "24h_total_volume": sum(
-                    float(t.amount)
-                    for t in history
-                    if (transaction.created_at - t.created_at).total_seconds()
-                    <= 86400  # one day
+                "24h_total_volume": str(
+                    sum(
+                        float(t.amount)
+                        for t in history
+                        if (transaction.created_at - t.created_at).total_seconds()
+                        <= 86400
+                    )
                 ),
                 "24h_transaction_count": len(
                     [
@@ -319,7 +288,6 @@ class TransactionAnalyzer:
                 ),
             }
             return final_score, risk_factors
-
         except Exception as e:
             logger.error(f"Error analyzing transaction: {str(e)}")
             return 0.8, {"error": str(e)}

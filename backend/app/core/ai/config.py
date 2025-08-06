@@ -14,7 +14,7 @@ class AISettings(BaseSettings):
         "time": 0.1,
         "frequency": 0.2,
         "pattern": 0.2,
-        "velocity": 0.2,
+        "velocity_amount": 0.2,
     }
 
     # Sum must add to 1.0 (100%)
